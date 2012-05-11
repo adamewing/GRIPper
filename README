@@ -1,0 +1,33 @@
+
+discord-pseudo README.txt
+
+Adam Ewing <adam.ewing@gmail.com>
+
+discord-pseudo is a tool to identify non-reference processed pseudogene (PP) 
+insertions from paired-end whole-genome sequence data, specifically tuned for 
+Illumina reads.
+
+There are a number of auxilliary files that specify details of the various
+PPs one expects to find. Currently, discord-pseudo is configured to analyse
+human genomes; this can be changed by substituting the appropriate annotations
+for another species of interest.
+
+More details to come, but for now, users can try running discord-retro on the
+example .bam included (test/example.bam) with the following commandline:
+
+./discord-pseudo.py -s samplelist_example.txt -c human.cfg -o test/output
+
+output will end up in test/output/example, the most relevant files are
+other.tab.txt and otherbreaks.tab.txt, the former contains the coordinates and
+annotations, the latter contains breakpoint information.
+
+in order for this to work, human_sample.cfg will have to be modified to assign
+'hg19' to a copy of hg19 that has been indexed by `bwa index -a stdsw`
+
+Prerequisites:
+
+bwa (http://bio-bwa.sourceforge.net/)
+samtools (http://samtools.sourceforge.net/)
+tabix (http://samtools.sourceforge.net/tabix.shtml)
+pysam (http://code.google.com/p/pysam/)
+parallelpython (http://www.parallelpython.com/)

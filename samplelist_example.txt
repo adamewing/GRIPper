@@ -1,0 +1,3 @@
+# example sample list
+# lines must consist of a filename with the full absolute path, followed by a tab/space and the sample name
+test/example.bam example
