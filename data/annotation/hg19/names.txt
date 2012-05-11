@@ -1,4 +1,3 @@
-RepeatMasker	rmsk.hg19.bed.gz
-NonRefRtn	nonref.hg19.bed.gz
+RepeatMasker	hg19.rmsk.bed.gz
 GeneSymbol	hg19.genesymbol.bed.gz
 GeneExon	hg19.exons.bed.gz
