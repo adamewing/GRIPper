@@ -6,40 +6,14 @@
  Released under the MIT license, see LICENSE.txt
 """
 
-import sys
-import re
-import time
-from os import path as path
-import pp
-import argparse
-import subprocess
-import pysam
-import ConfigParser
-
+import sys, re, time, pp, argparse, subprocess, pysam, ConfigParser
 import lib.configtest as configtest
+from os import path as path
+
 # other imports are done via pp
 
-def asmFromPhrase(phrase):
-    if (re.search('build36', phrase) or
-        re.search('HG36', phrase) or
-        re.search('hg36', phrase) or
-        re.search('assembly18', phrase) or
-        re.search('HG18', phrase) or
-        re.search('hg18', phrase) or
-        re.search('GRCh36', phrase)):
-        return 'hg18'
-
-    if (re.search('build37', phrase) or
-        re.search('HG37', phrase) or
-        re.search('hg37', phrase) or
-        re.search('assembly19', phrase) or
-        re.search('HG19', phrase) or
-        re.search('hg19', phrase) or
-        re.search('GRCh37', phrase)):
-        return 'hg19'
-
 class PairedSample:
-    def __init__(self,name,config,outdir,tcga=False):
+    def __init__(self,name,config,outdir,assembly,tcga=False):
         self.name = name
         self.tcga = tcga      # if true, changes validation, naming
         self.config = config  # ConfigParser
@@ -48,7 +22,7 @@ class PairedSample:
         self.normalBam = None
         self.cancerIdx = None
         self.normalIdx = None 
-        self.assembly  = None
+        self.assembly  = assembly 
 
     def __str__(self):
         return "\t".join((str(self.cancerBam),str(self.normalBam),
@@ -78,32 +52,6 @@ class PairedSample:
             self.cancerBam = filePath
             self.cancerIdx = filePath + ".bai"
 
-    def getAssembly(self,default):
-        """
-        use pysam to try and determine whether this is hg18 or hg19
-        must be run before runDiscordant
-        """
-        try:
-            bamFile = pysam.Samfile(self.normalBam, 'rb')
-            header = bamFile.header
-            asm = ''
-            asmphrase = ''
-            if header.has_key('SQ'):
-                sqdict = header['SQ'][0]
-                if sqdict.has_key('AS'):
-                    asm = asmFromPhrase(sqdict['AS'])
-                elif sqdict.has_key('UR'):
-                    asm = asmFromPhrase(sqdict['UR'])
-                else:
-                    asm = default
-            else:
-                asm = default
-            self.assembly = asm
-            return asm
-        except:
-            sys.stderr.write("unrecognized entries in header, assuming " + default + "\n")
-            self.assembly = default
-            return default
 
     def runDiscordant(self):
         """Runs pickreads.py, peakparser.py, summarize,py, pinpoint.py"""
@@ -174,7 +122,7 @@ def main(args):
 
     for line in open(args.sampleFile, 'r'):
         if not re.search("^#", line):
-            (filePath,label) = line.strip().split()
+            (filePath,label,assembly) = line.strip().split()
             base = path.basename(filePath)
 
             sampleType = 'NORMAL'
@@ -194,16 +142,9 @@ def main(args):
             config.read(args.configFile)
 
             if sampleName not in pairedSamples:
-                pairedSamples[sampleName] = PairedSample(sampleName,config,args.outDirName,tcga=args.tcga)
+                pairedSamples[sampleName] = PairedSample(sampleName,config,args.outDirName,assembly,tcga=args.tcga)
 
             pairedSamples[sampleName].addFile(sampleType,extension,filePath)
-
-    # assign assemblies from header information
-    print "trying to determine assemblies from .bam file headers..."
-    for sampleName in pairedSamples.keys():
-        if pairedSamples[sampleName].validate():
-            asm = pairedSamples[sampleName].getAssembly(args.defaultRef)
-            print sampleName + " is " + asm
 
     # parallel python stuff
     ncpus = 16
@@ -227,10 +168,8 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Pipeline that aims to identify TE insertions from .bam alignments")
-    parser.add_argument('-f', '--sampleFile', dest="sampleFile", required=True,
+    parser.add_argument('-s', '--sampleFile', dest="sampleFile", required=True,
                     help="List of filenames and sample names. Should include both .bam files (.bam) and their indexes (.bai)")
-    parser.add_argument('-r', '--defaultReference', dest="defaultRef", default='hg19',
-                    help="Default reference assembly. If assembly can be determined from .bam header that will trump the default.")
     parser.add_argument('-c', '--config', dest='configFile', required=True)
     parser.add_argument('-p', '--processors', dest='numCPUs', default='1', help="Number of CPUs to use (1 job per CPU)")
     parser.add_argument('-o', '--outdir', dest='outDirName', required=True, help="output base directory")

@@ -15,7 +15,7 @@ for another species of interest.
 More details to come, but for now, users can try running discord-retro on the
 example .bam included (test/example.bam) with the following commandline:
 
-./discord-pseudo.py -s samplelist_example.txt -c human.cfg -o test/output
+./discord-pseudo.py -s samplelist_example.txt -c human_sample.cfg -o test/output
 
 output will end up in test/output/example, the most relevant files are
 other.tab.txt and otherbreaks.tab.txt, the former contains the coordinates and
