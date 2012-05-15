@@ -31,7 +31,7 @@ def checkOutDir(outBaseName,outDirName):
     if not os.path.exists(outDirName + "/" + outBaseName + '/logs'):
         os.mkdir(outDirName + "/" + outBaseName + '/logs')
 
-def checkPseudo(tabixFile,chr,start,end):
+def checkPseudo(tabixFile,tabixContigs,chr,start,end):
     """
     Function for checking coordinates against pseudogene tabix file
     Returns True if an element overlapped
@@ -40,11 +40,12 @@ def checkPseudo(tabixFile,chr,start,end):
        tmp   = start
        start = end
        end   = tmp
-    tabixTupleParse = tabixFile.fetch(reference=chr, start=start, end=end, parser=pysam.asTuple())
-    if tabixTupleParse:
-        for tabixTuple in tabixTupleParse:
-            return True
-    return False
+    if tabixContigs.has_key(chr):
+        tabixTupleParse = tabixFile.fetch(reference=chr, start=start, end=end, parser=pysam.asTuple())
+        if tabixTupleParse:
+            for tabixTuple in tabixTupleParse:
+                return True
+        return False
 
 def readConfig(configPath,outBaseName,outDirName):
     """reads and validates config.txt from output directory"""
@@ -68,7 +69,7 @@ def readConfig(configPath,outBaseName,outDirName):
 
     return configDict
 
-def longOutput(geneNameDict,outBaseName,outDirName,pgTabix):
+def longOutput(geneNameDict,outBaseName,outDirName,pgTabix,pgTabixContigs):
     """
     Outputs information for the debug.txt file in the output directory
     which contains information for downstream tasks
@@ -81,7 +82,7 @@ def longOutput(geneNameDict,outBaseName,outDirName,pgTabix):
         for peak in peakList.peaks:
             if peak.hasPairs():
                 breakpoint = peak.getBreakpoint()
-		pgOverlap = checkPseudo(pgTabix,peak.getChr(),breakpoint.minPeakPos(),breakpoint.maxPeakPos())
+		pgOverlap = checkPseudo(pgTabix,pgTabixContigs,peak.getChr(),breakpoint.minPeakPos(),breakpoint.maxPeakPos())
                 primaryGene = peak.primaryMateElt().split('.')[0]
 
                 outstr = ("pos=" + peak.getChr() + ":%d-%d" % (breakpoint.leftpos,breakpoint.rightpos)
@@ -119,6 +120,10 @@ def main(args):
 
     tabixFile = pysam.Tabixfile(configDict['exonTabixFile'], 'r')
     pgTabix = pysam.Tabixfile(args.pgTabixFile, 'r')
+
+    pgTabixContigs = {}
+    for contig in pgTabix.contigs:
+        pgTabixContigs[contig] = 1
 
     # structure for keeping element classes seperate
     geneNameDict = {}
@@ -159,7 +164,7 @@ def main(args):
         geneNameDict[geneName].peaks.append(geneNameDict[geneName].peak)
 
     logging.info("starting long output...")
-    longOutput(geneNameDict,args.outBaseName,args.outDirName,pgTabix)
+    longOutput(geneNameDict,args.outBaseName,args.outDirName,pgTabix,pgTabixContigs)
 
 if __name__ == '__main__':
     # commandline args 
