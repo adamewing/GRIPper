@@ -109,7 +109,6 @@ class PairedSample:
             lib.pinpoint.main(args)
 
         else:
-            
             lib.pickreads.main(args)
             lib.peakparser.main(args)
             lib.summarize.main(args)
