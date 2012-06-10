@@ -13,9 +13,10 @@ from os import path as path
 # other imports are done via pp
 
 class PairedSample:
-    def __init__(self,name,config,outdir,assembly,tcga=False):
+    def __init__(self,name,config,outdir,assembly,tcga=False,justcall=False):
         self.name = name
         self.tcga = tcga      # if true, changes validation, naming
+        self.justcall = justcall
         self.config = config  # ConfigParser
         self.outdir = outdir
         self.cancerBam = None
@@ -109,7 +110,8 @@ class PairedSample:
             lib.pinpoint.main(args)
 
         else:
-            lib.pickreads.main(args)
+            if not self.justcall:
+                lib.pickreads.main(args)
             lib.peakparser.main(args)
             lib.summarize.main(args)
             lib.pinpoint.main(args)
@@ -141,7 +143,7 @@ def main(args):
             config.read(args.configFile)
 
             if sampleName not in pairedSamples:
-                pairedSamples[sampleName] = PairedSample(sampleName,config,args.outDirName,assembly,tcga=args.tcga)
+                pairedSamples[sampleName] = PairedSample(sampleName,config,args.outDirName,assembly,tcga=args.tcga,justcall=args.justcall)
 
             pairedSamples[sampleName].addFile(sampleType,extension,filePath)
 
@@ -173,6 +175,6 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--processors', dest='numCPUs', default='1', help="Number of CPUs to use (1 job per CPU)")
     parser.add_argument('-o', '--outdir', dest='outDirName', required=True, help="output base directory")
     parser.add_argument('--tcga', action="store_true", help="Use TCGA filename format to determine cancer/normal pair")
-    parser.add_argument('--ignoreheader', action="store_true", help="Don't try to read header information, needed for non-standatd flags in header")
+    parser.add_argument('--justcall', action="store_true", help="don't pick discordant reads, just call on pre-existing sample.readpairs.txt")
     args = parser.parse_args()
     main(args)
