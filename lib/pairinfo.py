@@ -540,7 +540,7 @@ class BreakPoint:
 #            print "inv rule 3"
             return False
         # requirements for mean inter-read distances inside of a peak
-        if self.leftMeanDist() == 0 or self.rightMeanDist() == 0 or self.leftMeanDist() > 100 or self.rightMeanDist() > 100:
+        if self.leftMeanDist() > 200 or self.rightMeanDist() > 200:
 #            print "inv rule 4"
             return False
         # less than 10% of reads on either side can have an inconsistent strand
