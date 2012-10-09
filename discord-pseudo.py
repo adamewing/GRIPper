@@ -148,7 +148,7 @@ def main(args):
             pairedSamples[sampleName].addFile(sampleType,extension,filePath)
 
     # parallel python stuff
-    ncpus = 16
+    ncpus = int(args.numCPUs) 
     jobServer = pp.Server(ncpus,ppservers=())
 
     sampleJobs = {}
