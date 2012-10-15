@@ -1,21 +1,20 @@
 
-discord-pseudo README.txt
+gripper README.txt
 
 Adam Ewing <adam.ewing@gmail.com>
 
-discord-pseudo is a tool to identify non-reference processed pseudogene (PP) 
-insertions from paired-end whole-genome sequence data, specifically tuned for 
-Illumina reads.
+GRIPper is a tool to identify non-reference gene retrocopy insertion polymorphisms 
+(GRIPs) from paired-end whole-genome sequence data, specifically tuned for Illumina 
+reads.
 
 There are a number of auxilliary files that specify details of the various
-PPs one expects to find. Currently, discord-pseudo is configured to analyse
-human genomes; this can be changed by substituting the appropriate annotations
-for another species of interest.
+GRIPs one expects to find. Currently, gripper is configured to analyse human 
+genomes; this can be changed by substituting the appropriate annotations for 
+another species of interest.
 
-More details to come, but for now, users can try running discord-retro on the
-example .bam included (test/example.bam) with the following commandline:
+Start by trying the included example (test/example.bam) with the following command:
 
-./discord-pseudo.py -s samplelist_example.txt -c human_sample.cfg -o test/output
+./gripper.py -s samplelist_example.txt -c human_sample.cfg -o test/output
 
 output will end up in test/output/example, the most relevant files are
 other.tab.txt and otherbreaks.tab.txt, the former contains the coordinates and
