@@ -1,6 +1,0 @@
-test/output/*
-data/annotation/hg18
-data/annotation/hg18*
-data/tabix/hg18.*
-human.cfg
-chimp.cfg

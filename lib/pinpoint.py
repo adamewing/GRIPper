@@ -200,11 +200,6 @@ def fetchRegion(bamFile,refGenome,maxReadLen,chr,start,end,gene,zeroChar,minClip
                         if (breakLeft >= start-10 and breakLeft <= end+10) or (breakRight >= start-10 and breakRight <= end+10):
                             cluster.aligns.append(align)
                             cluster.reads.append(read)
-                            #outseq = capSeq(read.seq, align.queryStart, align.queryEnd)
-                            #print "%s len=%d left=%d right=%d rl=%d rr=%d" % (outseq, read.rlen, breakLeft, breakRight, align.queryStart, align.queryEnd) 
-                            #print read.qual
-                            #print align
-                            #print regionRefSeq
     cluster.assignBreaks()
     return cluster;
 
