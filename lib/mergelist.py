@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/usr/bin/env python
 
 import logging, os, re, argparse, peakparser, pickreads, mergepairs
 

@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/usr/bin/env python
 
 """
  Copyright (C) 2012 by Adam Ewing (adam.ewing@gmail.com)

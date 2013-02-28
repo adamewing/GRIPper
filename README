@@ -7,22 +7,6 @@ GRIPper is a tool to identify non-reference gene retrocopy insertion polymorphis
 (GRIPs) from paired-end whole-genome sequence data, specifically tuned for Illumina 
 reads.
 
-There are a number of auxilliary files that specify details of the various
-GRIPs one expects to find. Currently, gripper is configured to analyse human 
-genomes; this can be changed by substituting the appropriate annotations for 
-another species of interest.
-
-Start by trying the included example (test/example.bam) with the following command:
-
-./gripper.py -s samplelist_example.txt -c human_sample.cfg -o test/output
-
-output will end up in test/output/example, the most relevant files are
-other.tab.txt and otherbreaks.tab.txt, the former contains the coordinates and
-annotations, the latter contains breakpoint information.
-
-in order for this to work, human_sample.cfg will have to be modified to assign
-'hg19' to a copy of hg19 that has been indexed by `bwa index -a stdsw`
-
 Prerequisites:
 
 bwa (http://bio-bwa.sourceforge.net/)
@@ -30,3 +14,33 @@ samtools (http://samtools.sourceforge.net/)
 tabix (http://samtools.sourceforge.net/tabix.shtml)
 pysam (http://code.google.com/p/pysam/)
 parallelpython (http://www.parallelpython.com/)
+
+Usage:
+
+There are a number of auxilliary files that specify details of the various
+GRIPs one expects to find. Currently, gripper is configured to analyse human 
+genomes; this can be changed by substituting the appropriate annotations for 
+another species of interest.
+
+* To begin, human_sample.cfg will have to be modified to assign
+  'hg19' to a copy of hg19 that has been indexed by `bwa index -a stdsw`
+
+* By default, GRIPper expects chromosome names to be prefixed by 'chr'. If this is
+  not the case for your reference genome, use 'usechr' to 'False' in the config
+  file (e.g. human_sample.cfg).
+
+* To increase sensitivity, the parameter 'minPeakSize' may be decreased from the
+  default of 8 reads to a minmum of 4 reads.
+
+* If there is more than one sample (BAM file) specified in gripper.py, changing the
+  -p command line flag will run multiple jobs in parallel.
+
+Start by trying the included example (test/example.bam) with the following command:
+
+./gripper.py -s samplelist_example.txt -c human_sample.cfg -o test
+
+output will end up in test/example, the most relevant files are
+uncategorized.tab.txt and uncategorizedbreaks.tab.txt, the former contains the 
+coordinates and annotations, the latter contains breakpoint information.
+
+
