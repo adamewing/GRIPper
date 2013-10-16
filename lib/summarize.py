@@ -152,7 +152,7 @@ def main(args):
                (key,value) = c.rsplit('=')
                insdata[key] = value
 
-            if int(insdata['np']) >= 8 and int(insdata['nEx']) > 1: 
+            if int(insdata['np']) >= int(args.minPeakSize) and int(insdata['nEx']) > 1: 
                 insSum = insertionSummary()
                 insSum.setPos(insdata['pos'])
                 insSum.setEltPos(insdata['eltExt'])
