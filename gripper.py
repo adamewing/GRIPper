@@ -131,6 +131,11 @@ def main(args):
             fileparts = base.split('.')
             extension = fileparts[-1]
 
+            cancerlabellist = ['tumor', 'tumour', 'cancer']
+            for cancerlabel in cancerlabellist:
+                if re.search(cancerlabel, sampleName.lower()):
+                    sampleType = 'CANCER'
+
             if args.tcga: # see https://wiki.nci.nih.gov/display/TCGA/Working+with+TCGA+Data
                 baseparts = base.split('-')
                 participant = baseparts[2]
