@@ -13,9 +13,10 @@ from os import path as path
 # other imports are done via pp
 
 class PairedSample:
-    def __init__(self,name,config,outdir,assembly,tcga=False,justcall=False):
+    def __init__(self,name,config,outdir,assembly,tcga=False,cancerpair=False,justcall=False):
         self.name = name
         self.tcga = tcga      # if true, changes validation, naming
+        self.cancerpair = cancerpair
         self.justcall = justcall
         self.config = config  # ConfigParser
         self.outdir = outdir
@@ -30,7 +31,7 @@ class PairedSample:
                           str(self.cancerIdx),str(self.normalIdx)))
 
     def validate(self):
-        if self.tcga:
+        if self.tcga or self.cancerpair:
             if (self.cancerBam and path.exists(self.cancerBam) and
                 self.normalBam and path.exists(self.normalBam) and
                 self.cancerIdx and path.exists(self.cancerIdx) and
@@ -85,7 +86,7 @@ class PairedSample:
                                   refGenomeFile  = self.config.get('discord',self.assembly),
                                   pgTabixFile    = self.config.get('discord','pgTabixFile'))
 
-        if self.tcga:
+        if self.tcga or self.cancerpair:
             normalName = self.name + "-NORMAL"
             cancerName = self.name + "-CANCER"
             mergeName  = self.name + "-MERGE"
@@ -131,10 +132,11 @@ def main(args):
             fileparts = base.split('.')
             extension = fileparts[-1]
 
-            cancerlabellist = ['tumor', 'tumour', 'cancer']
-            for cancerlabel in cancerlabellist:
-                if re.search(cancerlabel, sampleName.lower()):
-                    sampleType = 'CANCER'
+            if args.cancerpair:
+                cancerlabellist = ['tumor', 'tumour', 'cancer']
+                for cancerlabel in cancerlabellist:
+                    if re.search(cancerlabel, sampleName.lower()):
+                        sampleType = 'CANCER'
 
             if args.tcga: # see https://wiki.nci.nih.gov/display/TCGA/Working+with+TCGA+Data
                 baseparts = base.split('-')
@@ -148,7 +150,7 @@ def main(args):
             config.read(args.configFile)
 
             if sampleName not in pairedSamples:
-                pairedSamples[sampleName] = PairedSample(sampleName,config,args.outDirName,assembly,tcga=args.tcga,justcall=args.justcall)
+                pairedSamples[sampleName] = PairedSample(sampleName,config,args.outDirName,assembly,tcga=args.tcga,cancerpair=args.cancerpair,justcall=args.justcall)
 
             pairedSamples[sampleName].addFile(sampleType,extension,filePath)
 
@@ -180,6 +182,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--processors', dest='numCPUs', default='1', help="Number of CPUs to use (1 job per CPU)")
     parser.add_argument('-o', '--outdir', dest='outDirName', required=True, help="output base directory")
     parser.add_argument('--tcga', action="store_true", help="Use TCGA filename format to determine cancer/normal pair")
+    parser.add_argument('--cancerpair', action="store_true", help="Use label to determine cancer/normal pair")
     parser.add_argument('--justcall', action="store_true", help="don't pick discordant reads, just call on pre-existing sample.readpairs.txt")
     args = parser.parse_args()
     main(args)
